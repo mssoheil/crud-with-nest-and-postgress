@@ -18,4 +18,12 @@ export class AuthContoller {
   getUsers(): User[] {
     return this.authService.getAllUsers();
   }
+
+  @Post('login')
+  loginUser(
+    @Body('userName') userName: string,
+    @Body('password') password: string,
+  ) {
+    return this.authService.loginUser(userName, password);
+  }
 }
