@@ -1,9 +1,17 @@
-import { Optional } from '@nestjs/common';
+import { IsDefined, IsOptional, IsString, MinLength } from 'class-validator';
 
 export class User {
-  constructor(
-    public userName: string,
-    public password: string,
-    @Optional() public id: string,
-  ) {}
+  @IsString()
+  userName: string;
+
+  @IsString()
+  @IsDefined()
+  @MinLength(6, {
+    message: 'Password should be at least 6 characters',
+  })
+  password: string;
+
+  @IsString()
+  @IsOptional()
+  id: string;
 }
