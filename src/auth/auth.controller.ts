@@ -8,7 +8,7 @@ export class AuthContoller {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  registerUser(@Body(AuthValidationPipe) body: User) {
+  registerUser(@Body(new AuthValidationPipe()) body: User) {
     return this.authService.createUser(body.userName, body.password);
   }
 
@@ -18,7 +18,7 @@ export class AuthContoller {
   }
 
   @Post('login')
-  loginUser(@Body(AuthValidationPipe) body: User) {
+  loginUser(@Body(new AuthValidationPipe()) body: User) {
     return this.authService.loginUser(body.userName, body.password);
   }
 }
