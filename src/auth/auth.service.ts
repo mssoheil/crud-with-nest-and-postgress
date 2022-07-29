@@ -1,49 +1,59 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 // Utilities
 import * as bcrypt from 'bcrypt';
-import { v4 as uuidV4 } from 'uuid';
-import type { User } from './auth.dto';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './user.entity';
 
 dotenv.config();
 
 @Injectable()
 export class AuthService {
-  users: User[] = [];
+  constructor(
+    @InjectRepository(UserEntity)
+    private users: Repository<UserEntity>,
+  ) {}
 
-  private handleUserHasConflict(userName: string) {
-    if (this.isUserExist(userName)) {
+  private async handleUserHasConflict(userName: string) {
+    const userDoesExist = await this.isUserExist(userName);
+
+    if (userDoesExist) {
       throw new ConflictException('The user exists');
     }
   }
 
-  private handleUserNotFound(userName: string) {
-    const userIsExist = this.isUserExist(userName);
+  private async handleUserNotFound(userName: string) {
+    const userIsExist = await this.isUserExist(userName);
 
     if (!userIsExist) {
       throw new UnauthorizedException('The userName or password is wrong');
     }
   }
 
-  private isUserExist(userName: string): boolean {
-    return !!this.findUserByUserName(userName);
+  private async isUserExist(userName: string): Promise<boolean> {
+    const user = await this.findUserByUserName(userName);
+
+    return !!user;
   }
 
-  private findUserByUserName(userName: string): User | null {
-    const user = this.users.find((item: User) => item.userName === userName);
-    if (!user) {
-      return null;
+  private async findUserByUserName(userName: string): Promise<UserEntity> {
+    try {
+      const user = await this.users.findOneBy({ userName });
+
+      return user;
+    } catch (error) {
+      console.log('DEBUG -> AuthService -> findUserByUserName -> error', error);
+      return;
     }
-    return user;
   }
 
-  private createAccessToken(user: User) {
+  private createAccessToken(user: UserEntity) {
     const userWithoutPassword = {
       userName: user.userName,
       id: user.id,
@@ -57,7 +67,7 @@ export class AuthService {
     return accessToken;
   }
 
-  private async handlePasswordNotMatched(user: User, password: string) {
+  private async handlePasswordNotMatched(user: UserEntity, password: string) {
     const passwordDoesMatch = await bcrypt.compare(password, user.password);
 
     if (!passwordDoesMatch) {
@@ -66,38 +76,46 @@ export class AuthService {
   }
 
   async createUser(userName: string, password: string) {
-    this.handleUserHasConflict(userName);
+    try {
+      await this.handleUserHasConflict(userName);
 
-    if (this.isUserExist(userName)) {
-      throw new ConflictException('The user exists');
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      const newUser: UserEntity = {
+        userName,
+        password: hashedPassword,
+      };
+
+      await this.users.save(newUser);
+      return 'User created';
+    } catch (error) {
+      console.log('DEBUG -> AuthService -> createUser -> error', error);
+      return;
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const id = uuidV4();
-
-    const newUser: User = {
-      userName,
-      password: hashedPassword,
-      id,
-    };
-
-    this.users.push(newUser);
-    return 'User created';
   }
 
-  getAllUsers(): User[] {
-    return [...this.users.map((item) => item)];
+  getAllUsers(): Promise<UserEntity[]> {
+    try {
+      return this.users.find();
+    } catch (error) {
+      console.log('DEBUG -> AuthService -> getAllUsers -> error', error);
+      return;
+    }
   }
 
   async loginUser(userName: string, password: string) {
-    this.handleUserNotFound(userName);
+    try {
+      await this.handleUserNotFound(userName);
 
-    const user = this.findUserByUserName(userName);
+      const user = await this.findUserByUserName(userName);
 
-    this.handlePasswordNotMatched(user, password);
+      await this.handlePasswordNotMatched(user, password);
 
-    const accessToken = this.createAccessToken(user);
+      const accessToken = this.createAccessToken(user);
 
-    return { accessToken };
+      return { accessToken };
+    } catch (error) {
+      console.log('DEBUG -> AuthService -> loginUser -> error', error);
+    }
   }
 }

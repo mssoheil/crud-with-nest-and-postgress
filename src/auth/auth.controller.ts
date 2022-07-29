@@ -2,6 +2,7 @@ import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthValidationPipe } from './validation.pipe';
 import { User } from './auth.dto';
+import { UserEntity } from './user.entity';
 
 @Controller('auth')
 export class AuthContoller {
@@ -13,8 +14,9 @@ export class AuthContoller {
   }
 
   @Get('users')
-  getUsers(): User[] {
-    return this.authService.getAllUsers();
+  async getUsers(): Promise<UserEntity[]> {
+    const users = await this.authService.getAllUsers();
+    return users;
   }
 
   @Post('login')
