@@ -17,12 +17,6 @@ dotenv.config();
 export class AuthService {
   users: User[] = [];
 
-  private handleBadRequest(userName: string, password: string) {
-    if (!userName || !password) {
-      throw new BadRequestException('Provide userName and password');
-    }
-  }
-
   private handleUserHasConflict(userName: string) {
     if (this.isUserExist(userName)) {
       throw new ConflictException('The user exists');
@@ -72,8 +66,6 @@ export class AuthService {
   }
 
   async createUser(userName: string, password: string) {
-    this.handleBadRequest(userName, password);
-
     this.handleUserHasConflict(userName);
 
     if (this.isUserExist(userName)) {
@@ -98,8 +90,6 @@ export class AuthService {
   }
 
   async loginUser(userName: string, password: string) {
-    this.handleBadRequest(userName, password);
-
     this.handleUserNotFound(userName);
 
     const user = this.findUserByUserName(userName);
