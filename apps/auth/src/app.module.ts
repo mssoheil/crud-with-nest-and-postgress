@@ -22,6 +22,5 @@ dotenv.config();
     }),
     AuthModule,
   ],
-  controllers: [AppController],
 })
 export class AppModule {}

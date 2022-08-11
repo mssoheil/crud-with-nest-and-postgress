@@ -96,6 +96,7 @@ export class AuthService {
 
   getAllUsers(): Promise<UserEntity[]> {
     try {
+      console.log('HERE');
       return this.users.find();
     } catch (error) {
       console.log('DEBUG -> AuthService -> getAllUsers -> error', error);
