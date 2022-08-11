@@ -92,8 +92,8 @@ export class AuthService {
 
   getAllUsers() {
     try {
-      console.log('HEREEEEE');
-      this.authClient.emit('get-all-users', new GetAllUserEvent());
+      console.log("came here")
+      this.authClient.emit('get-all-users', new GetAllUserEvent("helloworld"));
       // return this.users.find();
     } catch (error) {
       console.log('DEBUG -> AuthService -> getAllUsers -> error', error);

@@ -17,8 +17,9 @@ export class AuthContoller {
   }
 
   @EventPattern('get-all-users')
-  async getUsers(): Promise<UserEntity[]> {
-    const users = await this.authService.getAllUsers();
+  async getUsers(data:any): Promise<UserEntity[]> {
+    console.log("🚀 ~ file: auth.controller.ts ~ line 21 ~ AuthContoller ~ getUsers ~ data", data)
+    const users = await this.authService.getAllUsers(data.value);
     return users;
   }
 

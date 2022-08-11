@@ -10,11 +10,15 @@ import * as dotenv from 'dotenv';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './user.entity';
+import { Kafka } from 'kafkajs';
 
 dotenv.config();
 
 @Injectable()
 export class AuthService {
+  private readonly kafka = new Kafka({
+    brokers: ['localhost:9092'],
+  });
   constructor(
     @InjectRepository(UserEntity)
     private users: Repository<UserEntity>,
@@ -94,8 +98,9 @@ export class AuthService {
     }
   }
 
-  getAllUsers(): Promise<UserEntity[]> {
+  getAllUsers(dataValue: any): Promise<UserEntity[]> {
     try {
+      console.log("🚀 ~ file: auth.service.ts ~ line 98 ~ AuthService ~ getAllUsers ~ dataValue", dataValue)
       console.log('HERE');
       return this.users.find();
     } catch (error) {
