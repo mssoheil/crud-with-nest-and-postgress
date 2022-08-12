@@ -4,7 +4,7 @@ import * as dotenv from 'dotenv';
 import { ClientKafka } from '@nestjs/microservices';
 import { GetAllUserEvent } from './events/get-all-users.event';
 import { Kafka } from 'kafkajs';
-import { GetAllUsersRequest } from './get-all-users-request.dto';
+import { GetAllUsersRequest } from './dtos/get-all-users-request.dto';
 
 dotenv.config();
 
