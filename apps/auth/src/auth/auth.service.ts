@@ -13,15 +13,14 @@ dotenv.config();
 
 @Injectable()
 export class AuthService {
-	private readonly kafka = new Kafka({
-		brokers: ['localhost:9092'],
-	});
-
 	constructor(
 		@InjectRepository(UserEntity)
-		private users: Repository<UserEntity>,
-		@Inject('AUTH_SERVICE') private readonly authClient: ClientKafka,
-	) {}
+		private users: Repository<UserEntity>, // @Inject('AUTH_SERVICE') private readonly authClient: ClientKafka,
+	) {
+		new Kafka({
+			brokers: ['localhost:9092'],
+		});
+	}
 
 	private async handleUserHasConflict(userName: string) {
 		const userDoesExist = await this.isUserExist(userName);
@@ -96,7 +95,6 @@ export class AuthService {
 
 	getAllUsers(): Promise<UserEntity[]> {
 		try {
-			console.log('HERE');
 			return this.users.find();
 		} catch (error) {
 			console.log('DEBUG -> AuthService -> getAllUsers -> error', error);

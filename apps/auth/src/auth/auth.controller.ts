@@ -1,16 +1,13 @@
-import { Body, Controller, Get, Inject, OnModuleInit, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthValidationPipe } from './validation.pipe';
 import { User } from './auth.dto';
 import { UserEntity } from './user.entity';
-import { ClientKafka, EventPattern, MessagePattern } from '@nestjs/microservices';
+import { EventPattern, MessagePattern } from '@nestjs/microservices';
 
 @Controller('auth')
 export class AuthContoller {
-	constructor(
-		private readonly authService: AuthService,
-		@Inject('AUTH_SERVICE') private readonly authClient: ClientKafka,
-	) {}
+	constructor(private readonly authService: AuthService) {}
 
 	// @Post('register')
 	// @MessagePattern({ cmd: 'register' })

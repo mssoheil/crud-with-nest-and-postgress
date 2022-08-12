@@ -94,9 +94,7 @@ export class AuthService {
 			console.log('came here');
 			this.authClient.send('get-all-users', new GetAllUsersRequest()).subscribe((users) => {
 				res.send(users);
-				// return users;
 			});
-			// return this.users.find();
 		} catch (error) {
 			console.log('DEBUG -> AuthService -> getAllUsers -> error', error);
 			return;
